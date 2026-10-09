@@ -1,0 +1,14 @@
+[inject] simulating failure after batch 0000
+[force] resetting checkpoint and removing existing batches
+[state] last committed batch: -1
+[commit] batch 0000 rows [0:5012] -> batch_0000.parquet
+Traceback (most recent call last):
+  File "C:\Users\laptop\Documents\data-engineering-stuff\dss150p_repro_Pesquisa_Jericho\src\ingest.py", line 311, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "C:\Users\laptop\Documents\data-engineering-stuff\dss150p_repro_Pesquisa_Jericho\src\ingest.py", line 300, in main
+    return run_ingest(
+           ^^^^^^^^^^^
+  File "C:\Users\laptop\Documents\data-engineering-stuff\dss150p_repro_Pesquisa_Jericho\src\ingest.py", line 269, in run_ingest
+    raise RuntimeError(f"Simulated failure after batch {batch_id}")
+RuntimeError: Simulated failure after batch 0

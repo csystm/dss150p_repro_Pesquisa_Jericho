@@ -6,3 +6,4 @@ shap
 joblib
 pyyaml
 python-dotenv
+pyarrow

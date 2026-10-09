@@ -1,0 +1,5 @@
+[state] last committed batch: 0
+[skip] batch 0000 rows [0:5012] already committed
+[commit] batch 0001 rows [5012:10024] -> batch_0001.parquet
+[commit] batch 0002 rows [10024:15036] -> batch_0002.parquet
+[done] run_id=run_20261009T095710Z_f7e6f73d committed_this_run=2 last_committed=2
