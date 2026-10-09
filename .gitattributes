@@ -1,0 +1,45 @@
+# Preserve bytes for hashed artifacts
+
+# Default: let Git normalize text files to LF inside the repo.
+* text=auto eol=lf
+
+# --- Byte-critical files: never let Git touch contents ---
+# Anything we hash (SHA-256) must be treated as binary so checkout
+# never rewrites line endings or strips whitespace.
+*.csv      -text
+*.tsv      -text
+*.parquet  binary
+*.feather  binary
+*.arrow    binary
+*.pkl      binary
+*.joblib   binary
+*.h5       binary
+*.pt       binary
+*.npy      binary
+*.npz      binary
+*.zip      binary
+*.gz       binary
+
+# --- Notebooks ---
+# Treat as binary to avoid diff noise; we strip outputs on commit via nbstripout.
+*.ipynb    -text diff=jupyter
+
+# --- Images / diagrams ---
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.svg text eol=lf
+
+# --- Scripts ---
+*.sh text eol=lf
+*.bash text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# --- Config / data contracts ---
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.ini  text eol=lf

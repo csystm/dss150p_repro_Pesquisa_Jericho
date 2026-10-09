@@ -1,0 +1,32 @@
+# Environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+
+# Source data: DREBIN subset is CC BY 4.0 (redistributable with attribution).
+# Keep the raw file tracked so the checksum can be verified on a clean clone.
+# But never commit derived large artifacts or secrets.
+
+# Generated outputs
+data/raw/*
+data/staging/*
+data/curated/*
+data/partitioned/*
+data/quarantine/*
+outputs/*
+!data/raw/.gitkeep
+!data/staging/.gitkeep
+!data/curated/.gitkeep
+!data/partitioned/.gitkeep
+!data/quarantine/.gitkeep
+!outputs/.gitkeep
+
+# Models / large artifacts
+*.pkl
+*.joblib
+*.h5
+*.pt
