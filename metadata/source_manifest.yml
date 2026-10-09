@@ -1,0 +1,127 @@
+source_file: drebin_dataset.csv
+source_path_relative: data/source/drebin_dataset.csv
+sha256: 710f2c11b0cad04c36f56dd16398127feb697fd99e8efa7f75890b792fba3ad5
+size_bytes: 6514978
+rows: 15036
+columns: 216
+target_column: class
+target_values:
+- B
+- S
+generated_at_utc: '2026-10-09T09:28:27.797498+00:00'
+duplicate_audit:
+  exact_duplicate_rows_total: 10047
+  exact_duplicate_rows_extra: 7775
+  exact_duplicate_group_size_distribution:
+    1: 4989
+    2: 1135
+    3: 491
+    4: 251
+    5: 130
+    6: 70
+    7: 30
+    8: 28
+    9: 14
+    10: 15
+    11: 13
+    12: 11
+    13: 6
+    14: 8
+    15: 4
+    16: 5
+    17: 6
+    18: 4
+    19: 4
+    20: 4
+    21: 5
+    22: 3
+    23: 2
+    24: 1
+    25: 4
+    26: 1
+    27: 1
+    29: 1
+    31: 1
+    34: 2
+    37: 1
+    40: 1
+    41: 3
+    42: 2
+    48: 1
+    56: 2
+    59: 1
+    60: 2
+    65: 1
+    97: 1
+    98: 1
+    120: 1
+    134: 1
+    136: 1
+    145: 1
+    268: 1
+    377: 1
+  duplicate_feature_rows_total: 10049
+  duplicate_feature_rows_extra: 7778
+  feature_duplicate_group_size_distribution:
+    1: 4987
+    2: 1135
+    3: 491
+    4: 251
+    5: 130
+    6: 70
+    7: 30
+    8: 27
+    9: 13
+    10: 15
+    11: 14
+    12: 11
+    13: 6
+    14: 8
+    15: 4
+    16: 5
+    17: 6
+    18: 4
+    19: 4
+    20: 4
+    21: 5
+    22: 3
+    23: 2
+    24: 1
+    25: 4
+    26: 1
+    27: 1
+    29: 1
+    31: 1
+    34: 2
+    37: 1
+    40: 1
+    41: 3
+    42: 2
+    48: 1
+    56: 2
+    59: 1
+    60: 2
+    65: 1
+    97: 1
+    98: 1
+    120: 1
+    134: 1
+    136: 1
+    145: 1
+    268: 1
+    385: 1
+  conflicting_label_groups: 3
+  conflicting_label_rows: 398
+  conflicting_label_samples:
+  - size: 385
+    label_counts:
+      B: 377
+      S: 8
+  - size: 11
+    label_counts:
+      B: 9
+      S: 2
+  - size: 2
+    label_counts:
+      S: 1
+      B: 1
