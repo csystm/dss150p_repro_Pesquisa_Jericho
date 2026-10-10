@@ -1,0 +1,19 @@
+wrote outputs\validation\_fixtures\staging_bad.parquet
+  row 0: transact = 7  (expected 0 or 1)
+  row 1: source_row_key = <NA>  (expected string)
+--- staging validation (validate_staging_20261010T133911Z_9c3317e9) ---
+  [PASS] [fail      ] schema.required_columns: all required columns present
+  [FAIL] [fail      ] completeness.no_nulls: nulls in 1 column(s)
+      details: {'offenders': {'source_row_key': 1}}
+  [PASS] [warn      ] uniqueness.source_row_key: all keys unique
+  [PASS] [fail      ] consistency.row_count: row count matches contract
+  [PASS] [fail      ] schema.feature_count: 215 feature columns (expected 215)
+  [FAIL] [quarantine] validity.features_binary: 1 feature(s) outside {0,1}
+      details: {'n_features': 215, 'violations': {'transact': ['0', '1', '7']}}
+  [PASS] [quarantine] validity.class: target values within allowed set
+  [PASS] [fail      ] consistency.class_distribution: distribution matches contract
+  [PASS] [fail      ] consistency.source_row_number_contiguous: source_row_number is 0..n-1 unique
+  [PASS] [fail      ] freshness.source_checksum: all rows carry expected checksum
+  [PASS] [fail      ] consistency.flag_conflicting_label_is_bool: flag dtype = bool
+  VERDICT=FAILED n_checks=11 n_failed=2
+report written: outputs\validation\staging_validate_staging_20261010T133911Z_9c3317e9.json
