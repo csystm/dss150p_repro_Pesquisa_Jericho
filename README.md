@@ -1,5 +1,17 @@
 placeholder
 
+### Reproducibility note
+
+The exact package versions used to reproduce the baseline are pinned in
+`requirements.txt`. The baseline notebook was executed with scikit-learn 1.9.1, 
+which emits `FutureWarning` for the deprecated `penalty=`
+argument. This is expected and does not affect results. Future scikit-learn
+releases will remove `penalty=`, at which point `src/train.py` will need to
+migrate to `l1_ratio=` and the pin will need to be updated.
+
+`PYTHONHASHSEED` must be set to `246112165` before running training:
+
+    PYTHONHASHSEED=246112165 python -m src.train
 
 ## Dataset and License
 
