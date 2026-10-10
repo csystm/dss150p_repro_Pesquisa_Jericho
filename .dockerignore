@@ -1,0 +1,40 @@
+# Version control
+.git
+.gitattributes
+.gitignore
+
+# Python envs
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+
+# Data — mounted at runtime, not baked into the image
+data/raw/
+data/staging/
+data/curated/
+data/partitioned/
+data/quarantine/
+
+# Outputs — mounted at runtime
+outputs/
+
+# Notebooks and large artifacts
+*.ipynb
+*.pkl
+*.joblib
+*.h5
+*.pt
+
+# Docs — not needed inside the image
+docs/evidence/
+
+# OS noise
+.DS_Store
+Thumbs.db

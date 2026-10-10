@@ -1,0 +1,44 @@
+name: dss150p-repro
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-dss150p}
+      POSTGRES_USER:     ${POSTGRES_USER:-dss150p_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/10_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dss150p-repro:pipeline
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      PYTHONHASHSEED: "${PYTHONHASHSEED:-246112165}"
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: ["tail", "-f", "/dev/null"]
+
+volumes:
+  pgdata:
