@@ -10,6 +10,8 @@ from pathlib import Path
 
 import pandas as pd
 
+import json as _json
+
 
 def write_parquet(df: pd.DataFrame, path: Path) -> None:
     path = Path(path)
@@ -36,4 +38,12 @@ def write_jsonl(df: pd.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     df.to_json(tmp, orient="records", lines=True)
+    tmp.replace(path)
+
+    
+def write_json(payload, path: Path) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(_json.dumps(payload, indent=2, default=str), encoding="utf-8")
     tmp.replace(path)
