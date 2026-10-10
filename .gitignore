@@ -30,3 +30,6 @@ outputs/*
 *.joblib
 *.h5
 *.pt
+
+# regenerable from curated + seed
+metadata/split_manifest.json
