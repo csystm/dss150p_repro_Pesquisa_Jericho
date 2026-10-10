@@ -1,0 +1,62 @@
+{
+  "generated_at_utc": "2026-10-10T14:45:06.351309+00:00",
+  "rows": 15036,
+  "columns": 222,
+  "feature_columns": 215,
+  "keys_checksum": "b31d6fd396dcf0de23eb38bc5f63c3bb680b78f49d2eaa7bf8d0164eb73c436e",
+  "paths": {
+    "csv": "outputs/benchmark/curated.csv",
+    "jsonl": "outputs/benchmark/curated.jsonl",
+    "parquet": "outputs/benchmark/curated.parquet"
+  },
+  "sizes": {
+    "csv": 9078651,
+    "jsonl": 83517394,
+    "parquet": 1111784
+  },
+  "timings": {
+    "csv_write_s": 0.9761891349999132,
+    "jsonl_write_s": 1.8040861819999918,
+    "parquet_write_s": 0.4591657790001591,
+    "csv_read_s": 0.20222849999981918,
+    "jsonl_read_s": 1.710513932999902,
+    "parquet_read_s": 0.03250938899986977,
+    "postgres_insert_s": 11.196253040999864,
+    "postgres_rows_inserted": 15036,
+    "postgres_count": 15036,
+    "postgres_full_table_scan_s": 0.013166206000050806,
+    "postgres_selective_query_s": 0.011937890000126572,
+    "postgres_full_count": 15036,
+    "postgres_selective_count": 5560
+  },
+  "partitions": {
+    "note": "No natural date/time key exists in the DREBIN subset. Partitions here are pedagogical: is_malware and flag_conflicting_label.",
+    "partitions": {
+      "is_malware=0": {
+        "rows": 9476,
+        "path": "outputs/benchmark/partitioned/is_malware=0.parquet",
+        "size_bytes": 841884
+      },
+      "is_malware=1": {
+        "rows": 5560,
+        "path": "outputs/benchmark/partitioned/is_malware=1.parquet",
+        "size_bytes": 428946
+      },
+      "flag_conflicting_label=false": {
+        "rows": 14634,
+        "path": "outputs/benchmark/partitioned/flag_conflicting_label=false.parquet",
+        "size_bytes": 1102491
+      },
+      "flag_conflicting_label=true": {
+        "rows": 402,
+        "path": "outputs/benchmark/partitioned/flag_conflicting_label=true.parquet",
+        "size_bytes": 152694
+      }
+    },
+    "selected_partition": {
+      "name": "is_malware=0",
+      "rows_read": 9476,
+      "matches_written": true
+    }
+  }
+}
