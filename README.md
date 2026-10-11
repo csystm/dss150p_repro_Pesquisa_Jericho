@@ -417,3 +417,4 @@ above.
 - Runbook: [`docs/runbook.md`](docs/runbook.md)
 - Acceptance tests: [`docs/acceptance_tests.md`](docs/acceptance_tests.md)
 - Evidence: [`docs/evidence/`](docs/evidence/)
+- Analysis and reflection: [`docs/analysis_and_reflection.md`](docs/analysis_and_reflection.md)
