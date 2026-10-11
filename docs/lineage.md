@@ -1,7 +1,7 @@
 # Data Lineage
 
-Dataset-level flow. Every node is a data artifact, every edge is a transformation
-or a movement between layers.
+Dataset-level flow. Every node is a data artifact, every edge is a
+transformation or a movement between layers.
 
 ```mermaid
 flowchart LR
@@ -32,12 +32,12 @@ flowchart LR
     CUR -->|src/load_to_postgres.py| PG
     METRICS -->|src/db.py| AUDIT
 
-    classDef source fill:#ffe4b5
-    classDef raw fill:#e6f2ff
-    classDef staging fill:#e6ffe6
-    classDef curated fill:#fff2e6
-    classDef output fill:#f0e6ff
-    classDef store fill:#ffe6e6
+    classDef source  fill:#ffe4b5,stroke:#8a6400,color:#000
+    classDef raw     fill:#e6f2ff,stroke:#1f4e79,color:#000
+    classDef staging fill:#e6ffe6,stroke:#2e6b2e,color:#000
+    classDef curated fill:#fff2e6,stroke:#8a4a00,color:#000
+    classDef output  fill:#f0e6ff,stroke:#4a2b7a,color:#000
+    classDef store   fill:#ffe6e6,stroke:#7a2b2b,color:#000
 
     class SRC source
     class RAW raw
@@ -54,9 +54,12 @@ Field-level transformations:
 | source → raw | (all) | unchanged; audit columns prepended |
 | raw → staging | `TelephonyManager.getSimCountryIso` | `'0'|'1'|'?'|0|1` → `{0,1}`, `'?'` → `0` |
 | raw → staging | every feature column | `int64` enforced, values checked against `{0,1}` |
-| raw → staging | (new) `flag_conflicting_label` | `True` for rows whose feature vector has >1 distinct target |
+| raw → staging | (new) `flag_conflicting_label` | `True` for rows whose feature vector has more than one distinct target |
 | staging → curated | `class` | dropped |
 | staging → curated | (new) `is_malware` | `S → 1`, `B → 0` |
 | staging → curated | audit columns | pruned to `ingest_run_id`, `transform_run_id`, `source_row_number`, `source_row_key`, `record_hash`, `flag_conflicting_label` |
 
-**No target leakage**: `class` and `is_malware` are excluded from `feature_columns()` in every module. Asserted in `tests/test_unit_transform.py::test_feature_columns_excludes_audit_and_target` and checked at runtime by `src/validate.py::check_no_target_leakage`.
+**No target leakage.** `class` and `is_malware` are excluded from
+`feature_columns()` in every module. Asserted in
+`tests/test_unit_transform.py::test_feature_columns_excludes_audit_and_target`
+and checked at runtime by `src/validate.py::check_no_target_leakage`.
