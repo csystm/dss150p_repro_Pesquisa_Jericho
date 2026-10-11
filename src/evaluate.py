@@ -188,7 +188,8 @@ def main(argv=None) -> int:
             print(f"  {pm} vs expected: {v['actual']:.4f} vs {v['expected']:.4f} "
                   f"(delta={v['delta']:+.4f}, within_tolerance={v['within_tolerance']})")
     print(f"reproducibility_passed={payload['reproducibility']['passed']}")
-    return 0 if payload["reproducibility"]["passed"] else 1
+    # evaluate is a measurement, not a gate. The gate is reproducibility_check.
+    return 0
 
 
 if __name__ == "__main__":
