@@ -1,0 +1,7 @@
+Aggregate  (cost=135.48..135.49 rows=1 width=8) (actual time=0.856..0.857 rows=1 loops=1)
+  ->  Index Only Scan using idx_curated_apps_is_malware on curated_apps  (cost=0.29..121.58 rows=5560 width=0) (actual time=0.176..0.643 rows=5560 loops=1)
+        Index Cond: (is_malware = 1)
+        Heap Fetches: 0
+Planning Time: 2.155 ms
+Execution Time: 0.981 ms
+median seconds: 0.001041995999912615

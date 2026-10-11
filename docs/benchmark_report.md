@@ -35,6 +35,8 @@ Generated at: `2026-10-10T14:45:06.351309+00:00`
 | full table count | 0.013166 | 15036 |
 | selective (is_malware=1) | 0.011938 | 5560 |
 
+**Index note.** The planner correctly ignores `idx_curated_apps_is_malware` at 15,036 rows (full scan 13 ms vs selective filter 12 ms — indistinguishable). When forced with `SET enable_seqscan = off`, the planner uses an `Index Only Scan` with `Heap Fetches: 0` and executes in 0.6 ms. The index is the right structure for the query; the table is simply small enough that the planner does not need it yet. See `docs/evidence/postgres_index_check.txt`.
+
 ## Logical-equivalence check
 Sorted `source_row_key` SHA-256 of curated input: `b31d6fd396dcf0de23eb38bc5f63c3bb680b78f49d2eaa7bf8d0164eb73c436e`
 

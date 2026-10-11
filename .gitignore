@@ -18,6 +18,7 @@ data/curated/*
 data/partitioned/*
 data/quarantine/*
 outputs/*
+logs/
 !data/raw/.gitkeep
 !data/staging/.gitkeep
 !data/curated/.gitkeep

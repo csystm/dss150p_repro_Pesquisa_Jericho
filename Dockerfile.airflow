@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1.7
+# Airflow image extending the pipeline image so DAG tasks can call src modules directly.
+FROM dss150p-repro:pipeline
+
+USER root
+
+ENV AIRFLOW_HOME=/opt/airflow \
+    AIRFLOW__CORE__LOAD_EXAMPLES=false \
+    AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags \
+    AIRFLOW__CORE__DEFAULT_TIMEZONE=UTC
+
+COPY requirements-airflow.txt /tmp/requirements-airflow.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-airflow.txt
+
+RUN mkdir -p /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins \
+ && chown -R app:app /opt/airflow
+
+USER app
+WORKDIR /app

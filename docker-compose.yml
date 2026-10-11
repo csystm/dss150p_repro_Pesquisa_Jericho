@@ -1,5 +1,21 @@
 name: dss150p-repro
 
+x-airflow-env: &airflow-env
+  AIRFLOW__CORE__EXECUTOR: LocalExecutor
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-dss150p_user}:${POSTGRES_PASSWORD:-change_me}@postgres:5432/airflow
+  AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+  AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+  AIRFLOW__CORE__FERNET_KEY: "${AIRFLOW_FERNET_KEY}"
+  AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  PYTHONHASHSEED: "246112165"
+
+x-airflow-volumes: &airflow-volumes
+  - ./dags:/opt/airflow/dags
+  - ./logs:/opt/airflow/logs
+  - ./:/app
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -13,6 +29,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./sql/schema.sql:/docker-entrypoint-initdb.d/10_schema.sql:ro
+      - ./sql/init_airflow_db.sql:/docker-entrypoint-initdb.d/20_airflow.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -40,5 +57,69 @@ services:
     working_dir: /app
     command: ["tail", "-f", "/dev/null"]
 
+  airflow-init:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    image: dss150p-repro:airflow
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment: *airflow-env
+    volumes: *airflow-volumes
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        airflow db migrate
+        airflow users create \
+          --username "$${AIRFLOW_ADMIN_USER:-admin}" \
+          --password "$${AIRFLOW_ADMIN_PASSWORD:-admin}" \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email "$${AIRFLOW_ADMIN_EMAIL:-admin@example.com}" \
+          || airflow users reset-password \
+               --username "$${AIRFLOW_ADMIN_USER:-admin}" \
+               --password "$${AIRFLOW_ADMIN_PASSWORD:-admin}"
+        echo "airflow-init complete"
+    restart: "no"
+
+  airflow-webserver:
+    image: dss150p-repro:airflow
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment: *airflow-env
+    ports:
+      - "${AIRFLOW_WEBSERVER_PORT:-8080}:8080"
+    volumes: *airflow-volumes
+    command: ["airflow", "webserver"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  airflow-scheduler:
+    image: dss150p-repro:airflow
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment: *airflow-env
+    volumes: *airflow-volumes
+    command: ["airflow", "scheduler"]
+    restart: unless-stopped
+
 volumes:
   pgdata:
+    name: dss150p-pgdata

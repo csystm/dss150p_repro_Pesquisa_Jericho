@@ -177,32 +177,36 @@ def build_curated(staging_df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Pipeline entry point
 # ---------------------------------------------------------------------------
-def run_transform(raw_dir: Path, staging_path: Path, curated_path: Path) -> dict:
+def run_transform(
+    raw_dir: Path,
+    staging_path: Path,
+    curated_path: Path,
+    stage: str = "both",
+) -> dict:
     transform_run_id = new_run_id("transform")
+    summary: dict = {"transform_run_id": transform_run_id, "stage": stage}
 
-    batch_files = sorted((raw_dir / "batches").glob("batch_*.parquet"))
-    if not batch_files:
-        raise FileNotFoundError(f"no raw batches found in {raw_dir / 'batches'}")
+    if stage in ("staging", "both"):
+        batch_files = sorted((raw_dir / "batches").glob("batch_*.parquet"))
+        if not batch_files:
+            raise FileNotFoundError(f"no raw batches found in {raw_dir / 'batches'}")
+        raw_df = pd.concat([read_parquet(p) for p in batch_files], ignore_index=True)
+        raw_df = raw_df.sort_values("source_row_number", kind="mergesort").reset_index(drop=True)
+        staging_df = build_staging(raw_df, transform_run_id=transform_run_id)
+        write_parquet(staging_df, staging_path)
+        summary["raw_rows"] = int(len(raw_df))
+        summary["staging_rows"] = int(len(staging_df))
+        summary["flag_conflicting_label_rows"] = int(
+            staging_df["flag_conflicting_label"].sum()
+        )
 
-    raw_df = pd.concat([read_parquet(p) for p in batch_files], ignore_index=True)
-    raw_df = raw_df.sort_values("source_row_number", kind="mergesort").reset_index(drop=True)
+    if stage in ("curated", "both"):
+        staging_df = read_parquet(staging_path)
+        curated_df = build_curated(staging_df)
+        write_parquet(curated_df, curated_path)
+        summary["curated_rows"] = int(len(curated_df))
 
-    staging_df = build_staging(raw_df, transform_run_id=transform_run_id)
-    curated_df = build_curated(staging_df)
-
-    write_parquet(staging_df, staging_path)
-    write_parquet(curated_df, curated_path)
-
-    n_conflict = int(staging_df["flag_conflicting_label"].sum())
-    return {
-        "transform_run_id": transform_run_id,
-        "raw_rows": int(len(raw_df)),
-        "staging_rows": int(len(staging_df)),
-        "curated_rows": int(len(curated_df)),
-        "flag_conflicting_label_rows": n_conflict,
-        "staging_path": str(staging_path),
-        "curated_path": str(curated_path),
-    }
+    return summary
 
 
 def parse_args(argv=None):
@@ -210,6 +214,7 @@ def parse_args(argv=None):
     p.add_argument("--raw-dir", default="data/raw")
     p.add_argument("--staging-path", default="data/staging/staging.parquet")
     p.add_argument("--curated-path", default="data/curated/curated.parquet")
+    p.add_argument("--stage", choices=["staging", "curated", "both"], default="both")
     return p.parse_args(argv)
 
 
@@ -220,6 +225,7 @@ def main(argv=None) -> int:
             raw_dir=Path(args.raw_dir),
             staging_path=Path(args.staging_path),
             curated_path=Path(args.curated_path),
+            stage=args.stage,
         )
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
