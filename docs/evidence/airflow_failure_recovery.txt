@@ -1,0 +1,54 @@
+=== Failed run: manual__2026-10-11T05:26:01+00:00 ===
+dag_id                    | execution_date            | task_id               | state           | start_date                       | end_date                        
+==========================+===========================+=======================+=================+==================================+=================================
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | train_model           | success         | 2026-10-11T05:26:30.156566+00:00 | 2026-10-11T05:27:31.308893+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | evaluate_model        | success         | 2026-10-11T05:27:32.279519+00:00 | 2026-10-11T05:27:35.955386+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | ingest_source         | success         | 2026-10-11T05:26:02.719941+00:00 | 2026-10-11T05:26:04.211392+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | validate_raw          | success         | 2026-10-11T05:26:04.851735+00:00 | 2026-10-11T05:26:06.216137+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | publish_outputs       | upstream_failed | 2026-10-11T05:28:39.490065+00:00 | 2026-10-11T05:28:39.490065+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | reproducibility_check | failed          | 2026-10-11T05:28:39.005416+00:00 | 2026-10-11T05:28:39.412161+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | transform_staging     | success         | 2026-10-11T05:26:06.721152+00:00 | 2026-10-11T05:26:09.902230+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | validate_staging      | success         | 2026-10-11T05:26:10.251964+00:00 | 2026-10-11T05:26:11.742179+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | build_curated         | success         | 2026-10-11T05:26:12.903556+00:00 | 2026-10-11T05:26:14.603662+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | load_postgres         | success         | 2026-10-11T05:26:15.006236+00:00 | 2026-10-11T05:26:26.800748+00:00
+predictive_repro_pipeline | 2026-10-11T05:26:01+00:00 | validate_curated      | success         | 2026-10-11T05:26:27.985334+00:00 | 2026-10-11T05:26:29.281907+00:00
+                                                                                                                                                                     
+
+=== reproducibility_check stdout (from task log) ===
+[2026-10-11T05:28:39.381+0000] {subprocess.py:106} INFO - primary=f1 tolerance=-1.0
+[2026-10-11T05:28:39.383+0000] {subprocess.py:106} INFO -   LR baseline      f1=0.9683 expected=0.9683 delta=-0.0000 within_tolerance=False
+[2026-10-11T05:28:39.384+0000] {subprocess.py:106} INFO -   LR L1            f1=0.9682 expected=0.9682 delta=+0.0000 within_tolerance=False
+[2026-10-11T05:28:39.385+0000] {subprocess.py:106} INFO -   LR L2            f1=0.9692 expected=0.9692 delta=-0.0000 within_tolerance=False
+[2026-10-11T05:28:39.386+0000] {subprocess.py:106} INFO -   MLP              f1=0.9838 expected=0.9838 delta=+0.0000 within_tolerance=False
+[2026-10-11T05:28:39.386+0000] {subprocess.py:106} INFO -   Random Forest    f1=0.9851 expected=0.9851 delta=-0.0000 within_tolerance=False
+[2026-10-11T05:28:39.387+0000] {subprocess.py:106} INFO -   XGBoost          f1=0.9861 expected=0.9865 delta=-0.0004 within_tolerance=False
+[2026-10-11T05:28:39.387+0000] {subprocess.py:106} INFO - REPRODUCIBILITY FAILED
+[2026-10-11T05:28:39.388+0000] {subprocess.py:106} INFO -   FAIL {'model': 'LR baseline', 'metric': 'f1', 'expected': 0.9683, 'actual': 0.9682894149173739, 'delta': -1.0585082626191067e-05}
+[2026-10-11T05:28:39.388+0000] {subprocess.py:106} INFO -   FAIL {'model': 'LR L1', 'metric': 'f1', 'expected': 0.9682, 'actual': 0.9682326621923938, 'delta': 3.266219239383972e-05}
+[2026-10-11T05:28:39.389+0000] {subprocess.py:106} INFO -   FAIL {'model': 'LR L2', 'metric': 'f1', 'expected': 0.9692, 'actual': 0.9691551184622262, 'delta': -4.4881537773711067e-05}
+[2026-10-11T05:28:39.389+0000] {subprocess.py:106} INFO -   FAIL {'model': 'MLP', 'metric': 'f1', 'expected': 0.9838, 'actual': 0.9838274932614556, 'delta': 2.7493261455568963e-05}
+[2026-10-11T05:28:39.390+0000] {subprocess.py:106} INFO -   FAIL {'model': 'Random Forest', 'metric': 'f1', 'expected': 0.9851, 'actual': 0.9850746268656716, 'delta': -2.5373134328376956e-05}
+[2026-10-11T05:28:39.391+0000] {subprocess.py:106} INFO -   FAIL {'model': 'XGBoost', 'metric': 'f1', 'expected': 0.9865, 'actual': 0.9860548807917229, 'delta': -0.0004451192082771671}
+
+=== last lines of same log (exit code) ===
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 1.
+[2026-10-11T05:28:39.466+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 1
+[2026-10-11T05:28:39.496+0000] {taskinstance.py:3901} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-10-11T05:28:39.500+0000] {local_task_job_runner.py:245} INFO - ::endgroup::
+
+=== Recovery run: manual__2026-10-11T05:34:18+00:00 ===
+dag_id                    | execution_date            | task_id               | state   | start_date                       | end_date                        
+==========================+===========================+=======================+=========+==================================+=================================
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | train_model           | success | 2026-10-11T05:34:46.021888+00:00 | 2026-10-11T05:35:42.429643+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | transform_staging     | success | 2026-10-11T05:34:23.880727+00:00 | 2026-10-11T05:34:26.336283+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | validate_staging      | success | 2026-10-11T05:34:26.823225+00:00 | 2026-10-11T05:34:28.397154+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | build_curated         | success | 2026-10-11T05:34:29.044016+00:00 | 2026-10-11T05:34:31.055114+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | validate_curated      | success | 2026-10-11T05:34:43.949547+00:00 | 2026-10-11T05:34:45.360678+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | evaluate_model        | success | 2026-10-11T05:35:43.382472+00:00 | 2026-10-11T05:35:47.993633+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | ingest_source         | success | 2026-10-11T05:34:19.799502+00:00 | 2026-10-11T05:34:21.261434+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | validate_raw          | success | 2026-10-11T05:34:21.742730+00:00 | 2026-10-11T05:34:23.102045+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | load_postgres         | success | 2026-10-11T05:34:31.975096+00:00 | 2026-10-11T05:34:42.970341+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | reproducibility_check | success | 2026-10-11T05:35:48.354142+00:00 | 2026-10-11T05:35:48.867707+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | publish_outputs       | success | 2026-10-11T05:35:49.466465+00:00 | 2026-10-11T05:35:50.987006+00:00
+                                                                                                                                                             

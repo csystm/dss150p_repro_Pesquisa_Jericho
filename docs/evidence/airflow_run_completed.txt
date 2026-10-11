@@ -1,0 +1,15 @@
+=== Successful run: manual__2026-10-11T05:34:18+00:00 ===
+dag_id                    | execution_date            | task_id               | state   | start_date                       | end_date                        
+==========================+===========================+=======================+=========+==================================+=================================
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | train_model           | success | 2026-10-11T05:34:46.021888+00:00 | 2026-10-11T05:35:42.429643+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | transform_staging     | success | 2026-10-11T05:34:23.880727+00:00 | 2026-10-11T05:34:26.336283+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | validate_staging      | success | 2026-10-11T05:34:26.823225+00:00 | 2026-10-11T05:34:28.397154+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | build_curated         | success | 2026-10-11T05:34:29.044016+00:00 | 2026-10-11T05:34:31.055114+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | validate_curated      | success | 2026-10-11T05:34:43.949547+00:00 | 2026-10-11T05:34:45.360678+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | evaluate_model        | success | 2026-10-11T05:35:43.382472+00:00 | 2026-10-11T05:35:47.993633+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | ingest_source         | success | 2026-10-11T05:34:19.799502+00:00 | 2026-10-11T05:34:21.261434+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | validate_raw          | success | 2026-10-11T05:34:21.742730+00:00 | 2026-10-11T05:34:23.102045+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | load_postgres         | success | 2026-10-11T05:34:31.975096+00:00 | 2026-10-11T05:34:42.970341+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | reproducibility_check | success | 2026-10-11T05:35:48.354142+00:00 | 2026-10-11T05:35:48.867707+00:00
+predictive_repro_pipeline | 2026-10-11T05:34:18+00:00 | publish_outputs       | success | 2026-10-11T05:35:49.466465+00:00 | 2026-10-11T05:35:50.987006+00:00
+                                                                                                                                                             
