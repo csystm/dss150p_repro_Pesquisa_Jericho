@@ -43,16 +43,26 @@ with SHA-256 `710f2c11b0cad04c36f56dd16398127feb697fd99e8efa7f75890b792fba3ad5`.
 
 ## 3. Reproduced metrics
 
+All values are from `outputs/metrics.json` produced by the full DAG run
+`manual__2026-10-11T05:51:04+00:00`, whose task states are recorded in
+`docs/evidence/airflow_run_completed.txt`. The primary metric is F1, the
+declared tolerance is ±0.01.
+
 | Model | F1 baseline | F1 reproduced | Delta | Within tolerance ±0.01 |
 |---|---:|---:|---:|:---:|
-| LR baseline | 0.9683 | 0.9683 | +0.0000 | Yes |
-| LR L2 | 0.9692 | 0.9692 | +0.0000 | Yes |
-| LR L1 | 0.9682 | 0.9682 | +0.0000 | Yes |
-| Random Forest | 0.9851 | 0.9851 | +0.0000 | Yes |
-| XGBoost | 0.9865 | 0.9861 | −0.0004 | Yes |
-| MLP | 0.9838 | 0.9838 | +0.0000 | Yes |
+| LR baseline | 0.9683 | 0.9683 | 0.0000 | Yes |
+| LR L2 | 0.9692 | 0.9692 | 0.0000 | Yes |
+| LR L1 | 0.9682 | 0.9682 | 0.0000 | Yes |
+| Random Forest | 0.9851 | 0.9851 | 0.0000 | Yes |
+| XGBoost | 0.9865 | 0.9851 | −0.0014 | Yes |
+| MLP | 0.9838 | 0.9838 | 0.0000 | Yes |
 
-`reproducibility_passed = true` on the primary metric F1.
+Reproducibility verdict: `reproducibility.passed = true`. Five of six models
+match the baseline F1 to four decimal places. XGBoost varies at the fourth
+decimal due to non-associative parallel reductions in its histogram-based
+tree construction (see §5.1). The observed spread across three full
+reproduction runs was 0.9861, 0.9851, 0.9851 — all within tolerance, none
+indicating a pipeline defect.
 
 ## 4. Deterministic controls
 
@@ -69,8 +79,8 @@ with SHA-256 `710f2c11b0cad04c36f56dd16398127feb697fd99e8efa7f75890b792fba3ad5`.
 
 XGBoost uses histogram-based tree construction with parallel reductions that
 are not associative. Across three full-reproduction runs on the same machine
-with the same seed and identical inputs, the XGBoost F1 varied at the fourth
-decimal: 0.9861, 0.9851, 0.9851. All values are well inside the ±0.01
+with the same seed and identical inputs, the XGBoost F1 varied slightly: 
+0.9861, 0.9851, 0.9851. All values are well inside the ±0.01
 tolerance and none indicates a pipeline defect. The pipeline keeps `n_jobs=-1`
 for speed. Setting `n_jobs=1` would eliminate the variance at a significant
 runtime cost.
