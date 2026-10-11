@@ -65,44 +65,28 @@ with SHA-256 `710f2c11b0cad04c36f56dd16398127feb697fd99e8efa7f75890b792fba3ad5`.
 
 ## 5. Known limitations
 
-### 5.1 XGBoost F1 delta of −0.0004
+### 5.1 XGBoost F1 delta up to −0.0014
 
 XGBoost uses histogram-based tree construction with parallel reductions that
-are not associative. Run-to-run F1 differs at the 4th decimal even with a
-fixed seed and identical inputs. The delta is well inside the ±0.01 tolerance
-and does not indicate a pipeline error. Verification experiment: rerunning
-with `n_jobs=1` should eliminate the drift; the pipeline keeps `n_jobs=-1`
-for speed and documents the expected tolerance.
+are not associative. Across three full-reproduction runs on the same machine
+with the same seed and identical inputs, the XGBoost F1 varied at the fourth
+decimal: 0.9861, 0.9851, 0.9851. All values are well inside the ±0.01
+tolerance and none indicates a pipeline defect. The pipeline keeps `n_jobs=-1`
+for speed. Setting `n_jobs=1` would eliminate the variance at a significant
+runtime cost.
 
-### 5.2 Duplicate rows and conflicting labels
+### 5.2 Duplicate rows, conflicting labels, and identity leakage
 
 The source file contains substantial duplication at the raw byte level:
 
 - 7,775 extra exact-duplicate rows (would be dropped by `drop_duplicates()`)
 - 7,778 extra duplicate-feature-vector rows
 - 3 feature-vector groups with conflicting labels, covering 398 raw rows
-  and 402 rows after `SimCountryIso` normalization to `{0,1}`
+  and 402 rows after `SimCountryIso` normalization to `{0, 1}`
 
 The largest group is the **all-zeros feature vector** (385 rows: 377 B, 8 S).
 It is inherent label noise: no feature-based model can separate those rows
 beyond the majority label.
-
-**Policy.** The pipeline treats every source row as one legitimate app
-observation (see `metadata/data_contract.yml > duplicates`). No row is
-dropped or reassigned in the primary reproduction; dropping would change
-the population, the class balance, and the split, making baseline metrics
-incomparable. Every conflicting-label row carries
-`flag_conflicting_label = True` for downstream analysis.
-
-### 5.3 Identity leakage in the random split
-
-Under the primary `policy=keep`, identical feature vectors can appear in
-both train and test. This is *identity leakage*: the model can match a test
-row to a train row by content. The pipeline logs this overlap via
-`record_hash` in the evaluation report. Baseline metrics are as reported
-above because the baseline itself used the random split.
-
-### 5.4 Post-normalization conflicting-label count
 
 The raw audit reports 398 conflicting rows. After normalizing
 `TelephonyManager.getSimCountryIso` from `{'0', '1', '?', 0, 1}` to `{0, 1}`
@@ -110,6 +94,90 @@ The raw audit reports 398 conflicting rows. After normalizing
 identical, joining existing conflicting groups. The post-normalization count
 is 402. The pipeline flags on the normalized vector because that is what the
 model sees.
+
+**Policy.** The pipeline treats every source row as one legitimate app
+observation (see `metadata/data_contract.yml > duplicates`). No row is dropped
+or reassigned in the primary reproduction; dropping would change the
+population, the class balance, and the split, making baseline metrics
+incomparable. Every conflicting-label row carries
+`flag_conflicting_label = True` for downstream analysis.
+
+**Identity leakage.** Under the primary `policy=keep`, identical feature
+vectors can appear in both train and test. This is *identity leakage*: the
+model can match a test row to a train row by content. The pipeline logs this
+overlap via `record_hash` in the evaluation report. Baseline metrics are as
+reported above because the baseline itself used the random split; a grouped
+split would not reproduce it.
+
+### 5.3 Airflow orchestration
+
+The DAG `predictive_repro_pipeline` orchestrates 11 tasks in a strict chain:
+
+    ingest_source
+      >> validate_raw
+      >> transform_staging
+      >> validate_staging
+      >> build_curated
+      >> load_postgres
+      >> validate_curated
+      >> train_model
+      >> evaluate_model
+      >> reproducibility_check
+      >> publish_outputs
+
+Every task body is a `BashOperator` that invokes `python -m src.X` inside the
+pipeline container; business logic lives exclusively in `src/*.py`. The DAG
+defines dependencies, retries (2 with 30 s delay), a per-task timeout (90
+minutes default, 120 for `train_model`), and a failure callback that logs
+`dag_id`, `task_id`, `run_id`, and `try_number`.
+
+Runtime parameters: `full_refresh`, `seed`, `primary_metric`, `tolerance`,
+`train_models`. These override the DAG defaults through `dag_run.conf`, so the
+same pipeline runs the fast subset (`train_models=linear`, ~90 seconds) and the
+full reproduction (`train_models=all`, ~9 minutes) without code changes.
+
+Execution evidence:
+
+- `docs/evidence/airflow_dag_graph.png` — DAG dependency graph.
+- `docs/evidence/airflow_run_all_models.png` — grid view of three runs:
+  fast linear success, deliberate failure, full-model success.
+- `docs/evidence/airflow_run_completed.txt` — task states for the full run
+  plus per-model F1 deltas.
+- `docs/evidence/airflow_failure_recovery.txt` — the failure injection run
+  (`tolerance=-1`, `reproducibility_check` fails, `publish_outputs` blocked)
+  and the subsequent recovery run (all green).
+
+### 5.4 Storage benchmark
+
+The same logical curated data (15036 rows × 222 columns) was materialized in
+four representations. Numbers are on the development machine (Windows 11 +
+Docker Desktop on WSL2, 16 GB RAM):
+
+| Format | Size | Write (s) | Read median (s) |
+|---|---:|---:|---:|
+| CSV | 9.08 MB | 0.98 | 0.202 |
+| JSONL | 83.5 MB | 1.80 | 1.711 |
+| Parquet | 1.11 MB | 0.46 | 0.033 |
+| PostgreSQL | — | 11.20 (insert) | 0.013 (count) |
+
+Conclusions:
+
+- **Parquet** is the pipeline's intermediate storage: 8× smaller than CSV and
+  6× faster to read. It preserves dtypes so the `SimCountryIso` normalization
+  does not need to be re-applied.
+- **CSV** remains the source-exchange format for its universality and for the
+  immutable identity check (the source dataset itself is CSV).
+- **JSONL** is 9× larger than CSV for this shape of data because every row
+  repeats 222 key strings. It is a poor fit for a wide low-cardinality table
+  but the right format for heterogeneous event streams.
+- **PostgreSQL** is the analytical store. At 15k rows the planner chooses a
+  sequential scan (13 ms full scan vs 12 ms selective filter — indistinguishable)
+  and ignores `idx_curated_apps_is_malware`. When forced with
+  `SET enable_seqscan = off`, an Index Only Scan with `Heap Fetches: 0`
+  executes in 0.6 ms. The index is correct; the table is simply small enough
+  that the planner does not need it yet.
+
+Full details: `docs/benchmark_report.md` and `docs/evidence/benchmark.json`.
 
 ## 6. Reproducibility contract verification
 
