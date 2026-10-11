@@ -34,12 +34,17 @@ with SHA-256 `710f2c11b0cad04c36f56dd16398127feb697fd99e8efa7f75890b792fba3ad5`.
 
 | Stage | Command | Output |
 |---|---|---|
-| Profile source | `python src/profile_source.py` | `metadata/source_manifest.yml`, `metadata/source_profile.md` |
-| Ingest full + incremental | `python src/ingest.py` | `data/raw/batches/batch_*.parquet` |
-| Transform | `python -m src.transform` | `data/staging/staging.parquet`, `data/curated/curated.parquet` |
-| Validate | `python -m src.validate --layer raw/staging/curated` | `outputs/validation/*.json` |
+| Profile source | `python -m src.profile_source` | `metadata/source_manifest.yml`, `metadata/source_profile.md` |
+| Ingest full + incremental | `python -m src.ingest` | `data/raw/batches/batch_*.parquet` |
+| Transform | `python -m src.transform --stage both` | `data/staging/staging.parquet`, `data/curated/curated.parquet` |
+| Validate | `python -m src.validate --layer raw` (also `staging`, `curated`) | `outputs/validation/*.json` |
 | Train | `PYTHONHASHSEED=246112165 python -m src.train` | `outputs/model/*.joblib`, `metadata/split_manifest.json` |
 | Evaluate | `python -m src.evaluate` | `outputs/metrics.json`, `outputs/predictions.csv` |
+| Reproducibility gate | `python -m src.reproducibility_check` | exit code 0 if F1 is within ±0.01 of `metadata/expected_metrics.json` |
+
+All commands are also available through the Airflow DAG
+`predictive_repro_pipeline`, which sequences the same modules as
+`BashOperator` tasks (see §5.3).
 
 ## 3. Reproduced metrics
 
@@ -212,31 +217,36 @@ Reference: §5 of the laboratory brief.
 | Split | `train_test_split` in notebook, seed noted | Same seed, persisted manifest | Reproducible, auditable |
 | Metrics | Printed in notebook | `outputs/metrics.json` compared to `metadata/expected_metrics.json` | Machine-checkable |
 | Model artifacts | `deployment_objects.pkl` | Per-model `.joblib` + `outputs/model/` | Cleaner separation |
-| Duplicate handling | Not documented | Contract-declared `policy=keep` with sensitivity run | Explicit engineering decision |
+| Duplicate handling | Not documented | Contract-declared `policy=keep` | Explicit engineering decision |
 | Orchestration | None | Airflow DAG (Phase III) | Runnable as a product |
 
 ## 8. What a reviewer can do
 
-From a clean clone:
+From a clean clone on any machine with Docker:
 
     git clone https://github.com/csystm/dss150p_repro_Pesquisa_Jericho.git
     cd dss150p_repro_Pesquisa_Jericho
-    python -m venv .venv && source .venv/bin/activate
-    pip install -r requirements.txt
     cp .env.example .env
-    # place drebin_dataset.csv in data/source/ (committed in this repo)
-    python src/profile_source.py
-    python src/ingest.py
-    python -m src.transform
+    mkdir -p logs
+    docker compose build pipeline
+    docker compose build airflow-init
+    docker compose up -d
+
+    # CLI-only path (no Airflow)
+    docker compose exec pipeline bash
+    python -m src.profile_source
+    python -m src.ingest
+    python -m src.transform --stage both
     python -m src.validate --layer raw
     python -m src.validate --layer staging
     python -m src.validate --layer curated
-    PYTHONHASHSEED=246112165 python -m src.train
-    python -m src.evaluate
+    docker compose exec -e PYTHONHASHSEED=246112165 pipeline python -m src.train
+    docker compose exec pipeline python -m src.evaluate
 
-Expected: `reproducibility_passed = true` in `outputs/metrics.json` with all
-six models' F1 within ±0.01 of the values in §3.
+    # Airflow path (equivalent)
+    docker compose exec airflow-scheduler \
+      airflow dags trigger predictive_repro_pipeline
 
----
-
-*This report will be extended in Phases III and IV with Airflow execution evidence, storage benchmark results, lineage, and failure-recovery transcripts.*
+Expected: `reproducibility_passed = true` in `outputs/metrics.json`, with all
+six models' F1 within ±0.01 of the values in §3. Full setup and troubleshooting
+are in `README.md` and `docs/runbook.md`.
