@@ -1,0 +1,54 @@
+# Reproduction policy for the DSS150P pipeline.
+#
+# This file is the source of truth for the *policy* of the reproduction:
+# the seed, the split ratio, the tolerance, the expected dataset shape,
+# the target mapping, and the canonical paths.
+#
+# It does NOT contain deployment values (credentials, hostnames, ports).
+# Those live in .env, which is not committed.
+#
+# Precedence at runtime (highest wins):
+#   1. CLI argument (e.g. --seed, --tolerance)
+#   2. environment variable (e.g. POSTGRES_HOST from .env)
+#   3. this file (policy defaults)
+#
+# Changes here change the reproduction contract. Do not edit casually.
+
+run:
+  seed: 246112165
+  pythonhashseed: 246112165
+
+split:
+  method: stratified_random
+  test_size: 0.2
+
+reproduction:
+  primary_metric: f1
+  tolerance: 0.01
+
+data:
+  source_expected_rows: 15036
+  source_expected_columns: 216
+  feature_count: 215
+  target_column: class
+  target_derived_column: is_malware
+  target_values: [B, S]
+  target_distribution: {B: 9476, S: 5560}
+  derived_distribution: {0: 9476, 1: 5560}
+
+paths:
+  source: data/source/drebin_dataset.csv
+  raw_dir: data/raw
+  staging: data/staging/staging.parquet
+  curated: data/curated/curated.parquet
+  model_dir: outputs/model
+  metrics: outputs/metrics.json
+  predictions: outputs/predictions.csv
+  split_manifest: metadata/split_manifest.json
+  expected_metrics: metadata/expected_metrics.json
+  data_contract: metadata/data_contract.yml
+  source_manifest: metadata/source_manifest.yml
+
+models:
+  linear_subset: [LR baseline, LR L2, LR L1]
+  all: [LR baseline, LR L2, LR L1, Random Forest, XGBoost, MLP]

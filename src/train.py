@@ -32,10 +32,11 @@ from sklearn.preprocessing import StandardScaler
 import xgboost as xgb
 
 from src.storage import read_parquet, write_json
+from src.config import get as cfg
 
-SEED = 246112165
-TEST_SIZE = 0.2
-TARGET_COL = "is_malware"
+SEED = int(cfg("run.seed", 246112165))
+TEST_SIZE = float(cfg("split.test_size", 0.2))
+TARGET_COL = cfg("data.target_derived_column", "is_malware")
 
 NON_FEATURE_COLS = {
     "ingest_run_id", "transform_run_id", "source_row_number",

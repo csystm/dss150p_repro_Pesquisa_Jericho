@@ -23,6 +23,14 @@ import pandas as pd
 import yaml
 
 from src.storage import read_parquet, write_json
+from src.config import get as cfg
+
+EXPECTED_FEATURE_COUNT = int(cfg("data.feature_count", 215))
+EXPECTED_ROWS = int(cfg("data.source_expected_rows", 15036))
+EXPECTED_TARGET = cfg("data.target_distribution", {"B": 9476, "S": 5560})
+EXPECTED_IS_MALWARE = {
+    int(k): int(v) for k, v in cfg("data.derived_distribution", {0: 9476, 1: 5560}).items()
+}
 
 NON_FEATURE_COLS = {
     "pipeline_run_id", "ingested_at_utc", "source_file", "source_checksum",
@@ -44,10 +52,6 @@ CURATED_REQUIRED = [
     "ingest_run_id", "transform_run_id", "source_row_number", "source_row_key",
     "record_hash", "flag_conflicting_label", "is_malware",
 ]
-EXPECTED_FEATURE_COUNT = 215
-EXPECTED_ROWS = 15036
-EXPECTED_TARGET = {"B": 9476, "S": 5560}
-EXPECTED_IS_MALWARE = {0: 9476, 1: 5560}
 
 
 # ---------------------------------------------------------------------------

@@ -21,10 +21,11 @@ from sklearn.metrics import (
 )
 
 from src.storage import read_parquet, write_csv, write_json
+from src.config import get as cfg
 
-TARGET_COL = "is_malware"
-TOLERANCE_DEFAULT = 0.01
-PRIMARY_METRIC_DEFAULT = "f1"
+TARGET_COL = cfg("data.target_derived_column", "is_malware")
+TOLERANCE_DEFAULT = float(cfg("reproduction.tolerance", 0.01))
+PRIMARY_METRIC_DEFAULT = cfg("reproduction.primary_metric", "f1")
 
 NON_FEATURE_COLS = {
     "ingest_run_id", "transform_run_id", "source_row_number",

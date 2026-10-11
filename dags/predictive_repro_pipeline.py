@@ -9,6 +9,12 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 
+import sys
+if "/app" not in sys.path:
+    sys.path.insert(0, "/app")
+
+from src.config import get as cfg
+
 
 def _failure_log(context):
     ti = context["task_instance"]
@@ -35,10 +41,10 @@ with DAG(
     default_args=DEFAULT_ARGS,
     params={
         "full_refresh": False,
-        "seed": 246112165,
-        "primary_metric": "f1",
-        "tolerance": 0.01,
-        "train_models": "all",   # or "linear" for the fast subset
+        "seed": int(cfg("run.seed", 246112165)),
+        "primary_metric": cfg("reproduction.primary_metric", "f1"),
+        "tolerance": float(cfg("reproduction.tolerance", 0.01)),
+        "train_models": "all",
     },
     tags=["dss150p", "reproducibility"],
 ) as dag:
