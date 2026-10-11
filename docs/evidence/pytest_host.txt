@@ -1,0 +1,65 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\laptop\Documents\data-engineering-stuff\dss150p_repro_Pesquisa_Jericho\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\laptop\Documents\data-engineering-stuff\dss150p_repro_Pesquisa_Jericho
+configfile: pytest.ini
+plugins: platformdirs-4.12.4
+collecting ... collected 52 items
+
+tests/test_data_contract.py::test_row_count_matches_contract PASSED      [  1%]
+tests/test_data_contract.py::test_feature_count PASSED                   [  3%]
+tests/test_data_contract.py::test_all_features_binary PASSED             [  5%]
+tests/test_data_contract.py::test_target_is_binary PASSED                [  7%]
+tests/test_data_contract.py::test_target_distribution PASSED             [  9%]
+tests/test_data_contract.py::test_source_row_key_unique PASSED           [ 11%]
+tests/test_data_contract.py::test_source_row_number_contiguous PASSED    [ 13%]
+tests/test_data_contract.py::test_no_class_column PASSED                 [ 15%]
+tests/test_data_contract.py::test_no_target_in_features PASSED           [ 17%]
+tests/test_data_contract.py::test_conflicting_label_flag_count PASSED    [ 19%]
+tests/test_data_contract.py::test_no_nulls_in_critical_columns PASSED    [ 21%]
+tests/test_data_contract.py::test_manifest_checksum_matches_source_on_disk PASSED [ 23%]
+tests/test_integration_pipeline.py::test_raw_to_curated_roundtrip PASSED [ 25%]
+tests/test_integration_pipeline.py::test_conflicting_label_flag_survives_roundtrip PASSED [ 26%]
+tests/test_integration_postgres.py::test_upsert_is_idempotent SKIPPED    [ 28%]
+tests/test_integration_postgres.py::test_record_pipeline_run_upserts SKIPPED [ 30%]
+tests/test_unit_ingest.py::test_compute_batch_boundaries_even_split PASSED [ 32%]
+tests/test_unit_ingest.py::test_compute_batch_boundaries_uneven PASSED   [ 34%]
+tests/test_unit_ingest.py::test_row_hash_deterministic PASSED            [ 36%]
+tests/test_unit_ingest.py::test_add_audit_columns_uses_global_row_offset PASSED [ 38%]
+tests/test_unit_ingest.py::test_validate_batch_accepts_correct_batch PASSED [ 40%]
+tests/test_unit_ingest.py::test_validate_batch_rejects_wrong_start PASSED [ 42%]
+tests/test_unit_ingest.py::test_validate_batch_rejects_checksum_mismatch PASSED [ 44%]
+tests/test_unit_ingest.py::test_checkpoint_roundtrip_and_atomic_write PASSED [ 46%]
+tests/test_unit_storage.py::test_parquet_roundtrip PASSED                [ 48%]
+tests/test_unit_storage.py::test_parquet_atomic_no_tmp_left PASSED       [ 50%]
+tests/test_unit_storage.py::test_csv_roundtrip PASSED                    [ 51%]
+tests/test_unit_storage.py::test_jsonl_roundtrip PASSED                  [ 53%]
+tests/test_unit_storage.py::test_json_roundtrip PASSED                   [ 55%]
+tests/test_unit_storage.py::test_write_creates_parent_dirs PASSED        [ 57%]
+tests/test_unit_train.py::test_feature_columns_excludes_audit_and_target PASSED [ 59%]
+tests/test_unit_train.py::test_make_split_deterministic PASSED           [ 61%]
+tests/test_unit_train.py::test_make_split_sizes PASSED                   [ 63%]
+tests/test_unit_train.py::test_make_split_stratified PASSED              [ 65%]
+tests/test_unit_train.py::test_key_checksum_deterministic PASSED         [ 67%]
+tests/test_unit_train.py::test_key_checksum_order_independent PASSED     [ 69%]
+tests/test_unit_train.py::test_set_seeds_reproducible PASSED             [ 71%]
+tests/test_unit_transform.py::test_normalizes_mixed_type_column PASSED   [ 73%]
+tests/test_unit_transform.py::test_feature_columns_excludes_audit_and_target PASSED [ 75%]
+tests/test_unit_transform.py::test_curated_maps_target_and_drops_class PASSED [ 76%]
+tests/test_unit_validate.py::test_check_schema_pass PASSED               [ 78%]
+tests/test_unit_validate.py::test_check_schema_fail_reports_missing PASSED [ 80%]
+tests/test_unit_validate.py::test_check_no_nulls_pass PASSED             [ 82%]
+tests/test_unit_validate.py::test_check_no_nulls_fail_reports_offender PASSED [ 84%]
+tests/test_unit_validate.py::test_check_unique_key PASSED                [ 86%]
+tests/test_unit_validate.py::test_check_binary_features_catches_non_binary PASSED [ 88%]
+tests/test_unit_validate.py::test_check_target_values PASSED             [ 90%]
+tests/test_unit_validate.py::test_check_target_distribution PASSED       [ 92%]
+tests/test_unit_validate.py::test_check_row_count PASSED                 [ 94%]
+tests/test_unit_validate.py::test_check_feature_count PASSED             [ 96%]
+tests/test_unit_validate.py::test_check_source_row_number_contiguous_detects_gap PASSED [ 98%]
+tests/test_unit_validate.py::test_check_no_target_leakage_regression_guard PASSED [100%]
+
+=========================== short test summary info ===========================
+SKIPPED [1] tests\test_integration_postgres.py:80: Postgres not reachable
+SKIPPED [1] tests\test_integration_postgres.py:92: Postgres not reachable
+======================== 50 passed, 2 skipped in 1.47s ========================
