@@ -314,12 +314,12 @@ for a demonstration that intentionally invalid data is caught.
 # Host (no Postgres)
 pip install -r requirements-dev.txt
 pytest tests/ -v
-# Expected: 50 passed, 2 skipped
+# Expected: 54 passed, 2 skipped
 
 # Inside the pipeline container (full suite, incl. Postgres)
 docker compose exec pipeline pip install pytest==9.1.1
 docker compose exec pipeline python -m pytest tests/ -v
-# Expected: 52 passed
+# Expected: 56 passed
 ```
 
 Test categories:
